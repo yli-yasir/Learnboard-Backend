@@ -49,8 +49,8 @@ message: String (0-2000 chars)
 
     * Query String Params:
         * `q`: Search term
-        * `postType`: "Offer" | "Request"
-        * `by`: Author id
+        * `type`: "Offer" | "Request"
+        * `author`: Author id
 
     * Description: returns all posts according to query string.
 
