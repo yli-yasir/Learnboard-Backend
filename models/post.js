@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-let ObjectId = mongoose.Schema.Types.ObjectId;
+const ObjectId = mongoose.Schema.Types.ObjectId;
 
 let postSchema =   new mongoose.Schema(
   {
@@ -13,7 +13,9 @@ let postSchema =   new mongoose.Schema(
     },
     type: { type: String, required: true, enum: ["offer", "request"] },
     author: { name: String, id: ObjectId },
-    languages: { type: [{ type: String, maxLength: 50 }], required: true },
+    languages: { type: [{ type: String, maxLength: 50 }], 
+    required: true,
+  validate: [v => v.length>0,"need more than 1 lang" ]},
     shortDescription: {
       type: String,
       required: true,
@@ -32,7 +34,7 @@ let postSchema =   new mongoose.Schema(
   { timestamps: true }
 );
 
-postSchema.statics.search = function(q,type,author,startFromIndex){
+postSchema.statics.search = function(q,type,author,startFrom,limit){
 //Build a filter accordingly, and use it to execute the query.
 let filter = {};
 
@@ -53,27 +55,27 @@ if (q) {
 
   pattern += ".+";
 
-  filter.topic = { $regex: pattern, $options: 'i' } }
+  filter.title = { $regex: pattern, $options: 'i' } }
 
 
 // If there is a postType,and that type isn't 'all' we consider it.
 // ( no need to consider postType if we are looking for everything)
 if (type && type !== 'all') {
-  filter.postType = type;
+  filter.type = type;
 }
 
 if (author) {
-  filter.authorStitchUserId = by;
+  filter.author = author;
 }
 
-if (startFromIndex) {
-  filter._id = { $lt: continueFrom };
+if (startFrom) {
+  filter._id = { $lt:startFrom };
 }
 
 console.log("search filter:");
 console.log(filter);
 
-return this.find(filter);
+return this.find(filter).limit(limit);
 }
 
 module.exports = mongoose.model(

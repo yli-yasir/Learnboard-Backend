@@ -2,21 +2,19 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
-const postsRouter = require('./routes/posts');
 
 mongoose.set('useUnifiedTopology', true);
 mongoose.set('useNewUrlParser', true);
 
-const db = mongoose.connection;
+mongoose.connect(process.env.MONGO_CONNECTION_STRING)
+.then(()=>{console.log('connected to mongo!')})
+.catch(()=>{console.error('mongo connection error!')});
 
-db.on('error', ()=>{console.error('mongo connection error!')});
+app.use(express.json())
 
-db.once('open', ()=>{console.log('connected to mongo!')});
-
-mongoose.connect(process.env.MONGO_CONNECTION_STRING);
-
-app.use('/api/posts',postsRouter);
-
+app.use('/api/posts',require('./routes/posts'));
+app.use('/api/reports',require('./routes/reports'));
+app.use('/api/users',require('./routes/users'));
 app.get('/',(req,res)=>res.send('root'));
 
 app.listen(process.env.PORT,()=> console.log(`listening @ ${process.env.PORT}`));

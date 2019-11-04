@@ -1,18 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const Post = require("../models/post");
+const Report = require("../models/report");
 const {getErrorMessages}= require("../utils/mongoose");
 
 router.get("/", async (req, res, next) => {
-  console.log(req.query.q);
   try {
-    const posts = await Post.search(
-      req.query.q,
-      req.query.type,
-      req.query.author,
-      req.query.start   
-    );
-    res.json(posts);
+    const reports = await Report.find();
+    res.json(reports);
   } catch (e) {
     next(e);
   }
@@ -20,9 +14,9 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
-    if (post){
-    res.json(post);
+    const report = await Report.findById(req.params.id);
+    if (report){
+    res.json(report);
     }
     else{
         res.status(400).send('not found');
@@ -34,7 +28,7 @@ router.get("/:id", async (req, res, next) => {
 
 router.post('/',async (req,res,next) => {
   try{
-    await new Post(req.body).save();
+    await new Report(req.body).save();
     res.send("created");
   }
   catch(e){
@@ -43,28 +37,27 @@ router.post('/',async (req,res,next) => {
   }
 }
   );
-
 router.patch("/:id", async (req, res, next) => {
-
   try {
     // try to find the document
-    const post = await Post.findById(req.params.id);
-    if (post) {
-      Object.assign(post,req.body);
-      await post.save(req.body);
+    const report = await Report.findById(req.params.id);
+    if (report) {
+      Object.assign(report,req.body);
+      await report.save(req.body);
       res.status(201).send("updated");
     } else {
       res.status(400).send("not found");
     }
   } catch (e) {
     const errorMessages = getErrorMessages(e);
+    console.log(errorMessages)
     res.status(400).json(errorMessages);
   }
 });
 
 router.delete("/:id", async (req, res, next) => {
   try {
-    const result = await Post.deleteOne({ _id: req.params.id });
+    const result = await Report.deleteOne({ _id: req.params.id });
     if (result.deletedCount ===1){
         res.send('deleted');
     }
