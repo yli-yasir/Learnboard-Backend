@@ -10,12 +10,14 @@
   "author": "Yasir Al-Baldawi",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.7"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/yli-yasir/Learnboard-Backend.git"
+    "type": "git",
+    "url": "https://github.com/yli-yasir/Learnboard-Backend.git"
   }
 }
