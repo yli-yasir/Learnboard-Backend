@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Report = require("../models/report");
-const {getErrorMessages}= require("../utils/mongoose");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -32,11 +31,11 @@ router.post('/',async (req,res,next) => {
     res.send("created");
   }
   catch(e){
-    const errorMessages = getErrorMessages(e);
-    res.status(400).json(errorMessages);
+    next(e);
   }
 }
   );
+
 router.patch("/:id", async (req, res, next) => {
   try {
     // try to find the document
@@ -49,9 +48,7 @@ router.patch("/:id", async (req, res, next) => {
       res.status(400).send("not found");
     }
   } catch (e) {
-    const errorMessages = getErrorMessages(e);
-    console.log(errorMessages)
-    res.status(400).json(errorMessages);
+    next(e);
   }
 });
 

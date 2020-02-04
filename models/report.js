@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
+
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 module.exports = mongoose.model(
   "report",
   new mongoose.Schema(
     {
-      author: ObjectId,
-      post: ObjectId,
-      name: {
+      author: new mongoose.Schema({ name: String, authorId: ObjectId }),
+      post: new mongoose.Schema({ title: String, postId: ObjectId }),
+      title: {
         type: String,
         required: true,
         minLength: 3,

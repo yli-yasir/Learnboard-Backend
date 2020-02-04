@@ -1,7 +1,23 @@
+# Goal
+Provide a modern high quality service that facilitiates learning. Users of the service may create posts. A post can either be an offer or a request about learning. User are able to specify a title, a short description, a description, languages and the location of where the learning will take place.
+
+Users are able to rate posts they have taken, and report scam posts. Each user will have a profile, in which they can indicate their contact details and a bio.
+
 # Technologies used:
 * Node
 * Express
 * MongoDB
+
+# Setting up:
+* Create all required MongoDB collections
+* Create a unqiue index on the email field in the `users` collection
+* Define the following enviroment variables in a `.env` file located at the root of the project:
+  * `PORT` : The port the server will run on.
+  * `MONGO_CONNECTION_STRING`: The MongoDB connection string.
+  * `SECURE_COOKIE`: Ensures the browser only sends the cookie over HTTPS. ( true | false )
+
+  Check https://www.npmjs.com/package/dotenv if you need more info.
+
 
 # MongoDB Collections:
 
@@ -12,11 +28,12 @@ Schema:
 ```
 _id: ObjectId
 title: String (3-150)
-type: String (Offer | Request)
+type: String (offer | request)
 author: {name: String, authorId: ObjectId}
 languages: [String]
 shortDescription: String (50-500 chars)
 description: String (50-2000 chars)
+location: GeoJSON Object
 ```
 ## Users
 
@@ -24,6 +41,8 @@ Schema:
 
 ```
 _id: ObjectId
+email: String
+password: String
 name: String (3-150)
 contact: String (50-1000 chars)
 bio: String (0-2000 chars)
@@ -38,7 +57,7 @@ _id: ObjectId
 author: ObjectId(userId)
 post: ObjectId(postId)
 title: String (3-150)
-message: String (0-2000 chars)
+message: String (50-2000 chars)
 ```
 
 # RESTFUL API Routes:

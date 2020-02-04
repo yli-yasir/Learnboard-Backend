@@ -4,8 +4,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const userSchema = new mongoose.Schema(
   {
-    email: String,
-    password: String,
+    email: {type:String,select: false,required: true, trim: true},
+    password: {type:String,select: false,required: true, trim: true},
     name: {
       type: String,
       required: true,
@@ -30,19 +30,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
  
-
-
-const projection  = {email: 0, password: 0,createdAt:0,updatedAt:0,__v:0};
-
-
-userSchema.statics.redactedFind = function(filter){
-  return this.find(filter).select(projection);
-}
-
-userSchema.statics.redactedFindById = function(id){
-  return this.findById(id).select(projection);
-}
-
 module.exports = mongoose.model(
   "user",
   userSchema

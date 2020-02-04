@@ -1,6 +1,18 @@
 const mongoose = require("mongoose");
-
+const chalk = require('chalk');
 const ObjectId = mongoose.Schema.Types.ObjectId;
+
+const pointSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ['Point'],
+    required: true
+  },
+  coordinates: {
+    type: [Number],
+    required: true
+  }
+});
 
 let postSchema =   new mongoose.Schema(
   {
@@ -12,10 +24,10 @@ let postSchema =   new mongoose.Schema(
       trim: true
     },
     type: { type: String, required: true, enum: ["offer", "request"] },
-    author: { name: String, id: ObjectId },
+    author: new mongoose.Schema({ name: String, authorId: ObjectId }),
     languages: { type: [{ type: String, maxLength: 50 }], 
     required: true,
-  validate: [v => v.length>0,"need more than 1 lang" ]},
+  validate: [v => v.length>0,"You must provide at least 1 language" ]},
     shortDescription: {
       type: String,
       required: true,
@@ -29,6 +41,10 @@ let postSchema =   new mongoose.Schema(
       minLength: 50,
       maxLength: 2000,
       trim: true
+    },
+    location:{
+      type:pointSchema,
+      required: true 
     }
   },
   { timestamps: true }
@@ -50,10 +66,12 @@ if (q) {
   let pattern = "";
 
   searchWords.forEach(word => {
+    //assert a maybe any num of any chars - followed by boundary - then word then maybe more chars- then boundary
     pattern += `(?=.*\\b${word}.*\\b)`;
   });
 
   pattern += ".+";
+  //explanation of above regex:
 
   filter.title = { $regex: pattern, $options: 'i' } }
 
@@ -72,8 +90,8 @@ if (startFrom) {
   filter._id = { $lt:startFrom };
 }
 
-console.log("search filter:");
-console.log(filter);
+console.log('A posts-search was conducted with the following filter:');
+console.log(chalk.yellow(JSON.stringify(filter,null,4)));
 
 return this.find(filter).limit(limit);
 }

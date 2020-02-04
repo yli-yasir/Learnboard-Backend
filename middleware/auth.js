@@ -1,4 +1,4 @@
-const userModel = require("../models/user");
+const UserModel = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -8,7 +8,7 @@ function verifyToken(req, res, next) {
     next();
   } catch (e) {
     console.log(`JWT verification failure -> ${e.message} @ ${Date.now()}`);
-    res.status(401).send("you shouldnt be here");
+    res.status(401).send("unauthorized");
   }
 }
 
@@ -24,7 +24,7 @@ async function login(req, res, next) {
     const username = req.body.username.trim();
     const password = req.body.password;
 
-    const user = await userModel.findById(username)
+    const user = await UserModel.findById(username)
     if (!user) {
       console.log(`Login attempt failed -> Invalid Username @ ${Date.now()}`)
       res.status(401).json({username: 'Invalid username'});
@@ -56,7 +56,7 @@ function grantToken(req, res) {
   const token = jwt.sign(req.user, process.env.SECRET, {
     expiresIn: 60 * 30
   });
-  res.cookie("token", token, {
+  res.cookie("tkn", token, {
     httpOnly: true,
     secure: process.env.SECURE_COOKIE === "true" ? true : false
   });
@@ -70,4 +70,4 @@ function sendUserInfo(req,res,next){
         name:req.user.name
     })
 }
-module.exports = { verifyToken, login, grantToken };
+module.exports = { verifyToken, login, grantToken,sendUserInfo };

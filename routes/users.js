@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
-const {getErrorMessages}= require("../utils/mongoose");
 
 router.get("/", async (req, res, next) => {
   try {
-    //ONLY USE REDACTED FIND OR YOU RISK LEAKING EMAIL AND PASSWORD
-    const users = await User.redactedFind();
+    const users = await User.find();
     res.json(users);
   } catch (e) {
     next(e);
@@ -15,8 +13,7 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
   try {
-      //ONLY USE REDACTED FIND OR U RISK LEAKING EMAIL AND PASSWORD
-    const user = await User.redactedFindById(req.params.id);
+    const user = await User.findById(req.params.id);
     if (user){
     res.json(user);
     }
@@ -34,8 +31,7 @@ router.post('/',async (req,res,next) => {
       res.send("created");
     }
     catch(e){
-      const errorMessages = getErrorMessages(e);
-      res.status(400).json(errorMessages);
+      next(e);
     }
   }
     );
@@ -51,9 +47,7 @@ router.patch("/:id", async (req, res, next) => {
       res.status(400).send("user not found");
     }
   } catch (e) {
-    const errorMessages = getErrorMessages(e);
-    console.log(errorMessages)
-    res.status(400).json(errorMessages);
+    next(e);
   }
 });
 
