@@ -11,15 +11,15 @@ module.exports = mongoose.model(
       title: {
         type: String,
         required: true,
-        minLength: 3,
-        maxLength: 150,
+        minlength: 3,
+        maxlength: 150,
         trim: true
       },
       message: {
         type: String,
         required: true,
-        minLength: 50,
-        maxLength: 2000,
+        minlength: 50,
+        maxlength: 2000,
         trim: true
       }
     },

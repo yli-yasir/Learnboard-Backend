@@ -19,27 +19,27 @@ let postSchema =   new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      minLength: 3,
-      maxLength: 150,
+      minlength: 3,
+      maxlength: 150,
       trim: true
     },
     type: { type: String, required: true, enum: ["offer", "request"] },
     author: new mongoose.Schema({ name: String, authorId: ObjectId }),
-    languages: { type: [{ type: String, maxLength: 50 }], 
+    languages: { type: [{ type: String, maxlength: 50 }], 
     required: true,
   validate: [v => v.length>0,"You must provide at least 1 language" ]},
     shortDescription: {
       type: String,
       required: true,
-      minLength: 50,
-      maxLength: 500,
+      minlength: 50,
+      maxlength: 500,
       trim: true
     },
     description: {
       type: String,
       required: true,
-      minLength: 50,
-      maxLength: 2000,
+      minlength: 50,
+      maxlength: 2000,
       trim: true
     },
     location:{

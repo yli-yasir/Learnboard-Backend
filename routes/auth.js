@@ -1,36 +1,37 @@
 const express = require("express");
 const router = express.Router();
 const UserModel = require("../models/user");
+const bcrypt = require('bcryptjs');
 const { verifyToken, login, grantToken, sendUserInfo } = require("../middleware/auth");
 
 router.post("/register", async (req, res, next) => {
 
   try {
 
-    //check if user with email already exists
-    const existingUser = UserModel.find({email:req.body.email});
+    // Check if user with email already exists
+    const existingUser = await UserModel.findOne({email:req.body.email});
 
     if (existingUser){
-      res.status(500).send("user with given email already exists")
+      res.status(500).send("User with given email already exists!")
       return;
     }
     
-    const password = await bcrypt.hash(req.body.password, 10);
 
-    const newUser = {
-      email: req.body.email,
-      password
-    };
+    const encryptedPassword = await bcrypt.hash(req.body.password, 10);
 
-    await new UserModel(newUser).save();
+    req.body.password = encryptedPassword;
 
-    res.status(201).send("user created");
+    // Save the new user
+    await new UserModel(req.body).save();
+
+    res.status(201).send("User created/registered!");
+    
   } catch (error) {
     next(error);
   }
 });
 
-//verify the JWT is valid, and send the username
+//verify the JWT is valid, and send some user info
 router.get("/login", verifyToken, sendUserInfo);
 
 
@@ -39,7 +40,7 @@ router.post("/login", login, grantToken, sendUserInfo);
 
 //log the user out
 router.post("/logout", function (req, res, next) {
-  res.cookie("token", "", { expires: new Date() });
+  res.cookie("tkn", "", { expires: new Date() });
   res.end();
 });
 

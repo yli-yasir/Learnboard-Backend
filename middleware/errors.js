@@ -1,10 +1,14 @@
 function handleMongooseError(err,req,res,next){
-    console.log('my logger')
-    // const errors = mongooseError.errors;
-    // const errorMessages = {};
-    // Object.keys(errors).forEach(key => errorMessages[key] =
-    //     errors[key].message);
-    // return errorMessages;
+    if (err.name==="ValidationError"){
+    const errors = err.errors;
+    const errorMessages = {};
+    Object.keys(errors).forEach(key => errorMessages[key] =
+        errors[key].message);
+    res.status(400).json(errorMessages);
+    }
+    else{
+    next(err);
+    }
 }
 
 module.exports = {handleMongooseError};

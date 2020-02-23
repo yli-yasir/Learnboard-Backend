@@ -1,10 +1,10 @@
 const UserModel = require("../models/user");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 function verifyToken(req, res, next) {
   try {
-    req.user = jwt.verify(req.cookies["token"], process.env.SECRET);
+    req.user = jwt.verify(req.cookies["tkn"], process.env.SECRET);
     next();
   } catch (e) {
     console.log(`JWT verification failure -> ${e.message} @ ${Date.now()}`);

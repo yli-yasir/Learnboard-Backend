@@ -9,21 +9,20 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      minLength: 3,
-      maxLength: 150,
+      minlength: 3,
+      maxlength: 150,
       trim: true
     },
     contact: {
       type: String,
       required: true,
-      minLength: 50,
-      maxLength: 1000,
+      maxlength: 1000,
       trim: true
     },
     bio: {
       type: String,
       required: true,
-      maxLength: 2000,
+      maxlength: 2000,
       trim: true
     }
   },

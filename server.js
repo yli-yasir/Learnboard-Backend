@@ -13,12 +13,14 @@ mongoose.connect(process.env.MONGO_CONNECTION_STRING)
 .catch(()=>{console.error('mongo connection error!')});
 
 app.use(express.json());
-app.use(handleMongooseError);
 
 app.use('/posts',require('./routes/posts'));
 app.use('/reports',require('./routes/reports'));
 app.use('/users',require('./routes/users'));
-
+app.use('/auth',require('./routes/auth'));
 app.get('/',(req,res)=>res.send('root'));
+
+app.use(handleMongooseError);
+
 
 app.listen(process.env.PORT,()=> console.log(`listening @ ${process.env.PORT}`));

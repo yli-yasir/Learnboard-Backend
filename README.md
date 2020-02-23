@@ -44,7 +44,7 @@ _id: ObjectId
 email: String
 password: String
 name: String (3-150)
-contact: String (50-1000 chars)
+contact: String (0-1000 chars)
 bio: String (0-2000 chars)
 ```
 
