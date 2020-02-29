@@ -52,22 +52,28 @@ async function login(req, res, next) {
 
 //req.user should be a plain object,it will be signed  and stored in cookie storage
 //and finally respond with the username of the user that was successfully logged in.
-function grantToken(req, res) {
+function grantToken(req, res,next) {
   const token = jwt.sign(req.user, process.env.SECRET, {
     expiresIn: 60 * 30
   });
   res.cookie("tkn", token, {
     httpOnly: true,
-    secure: process.env.SECURE_COOKIE === "true" ? true : false
+    secure: process.env.SECURE_COOKIES === "true" ? true : false
   });
 
   console.log(
     'Granted token!');
 }
 
+
 function sendUserInfo(req,res,next){
     res.json({
         name:req.user.name
     })
 }
+
+
+
+
 module.exports = { verifyToken, login, grantToken,sendUserInfo };
+

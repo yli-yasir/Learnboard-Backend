@@ -17,7 +17,6 @@ app.use(express.json());
 app.use('/posts',require('./routes/posts'));
 app.use('/reports',require('./routes/reports'));
 app.use('/users',require('./routes/users'));
-app.use('/auth',require('./routes/auth'));
 app.get('/',(req,res)=>res.send('root'));
 
 app.use(handleMongooseError);
