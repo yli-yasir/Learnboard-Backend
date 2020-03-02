@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const chalk = require("chalk");
-const { verifyToken, login, grantToken, sendUserInfo } = require("../middleware/auth");
+const { authenticateUser, grantToken, verifyToken, revokeToken, sendUserMetaData } = require("../middleware/auth");
 
 // Add a user
 router.post("/register", async (req, res, next) => {
@@ -159,17 +159,15 @@ router.post("/verify-account", async (req, res, next) => {
 
 });
 
-// Log the user in, by authenticating and granting a token.
-router.post("/login", login, grantToken, sendUserInfo);
+// Log a user in
+router.post("/login", authenticateUser, grantToken, sendUserMetaData);
 
-// Verify the JWT is valid, and send some user info
-router.get("/login", verifyToken, sendUserInfo);
+
+// Verify the user is logged in.
+router.get("/login", verifyToken, sendUserMetaData);
 
 // Log the user out
-router.post("/logout", (req, res, next) => {
-  res.cookie("tkn", "", { expires: new Date() });
-  res.end();
-});
+router.post("/logout", revokeToken);
 
 // Get all users in the system
 router.get("/", async (req, res, next) => {

@@ -1,79 +1,119 @@
 const UserModel = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const chalk = require("chalk");
 
-function verifyToken(req, res, next) {
-  try {
-    req.user = jwt.verify(req.cookies["tkn"], process.env.SECRET);
-    next();
-  } catch (e) {
-    console.log(`JWT verification failure -> ${e.message} @ ${Date.now()}`);
-    res.status(401).send("unauthorized");
-  }
-}
+// Authenticate the user
+async function authenticateUser(req, res, next) {
+  let email = req.body.email;
+  const password = req.body.password;
 
-//attempt to log the user in
-//if there is no user then respond with appropriate status code and message
-//if the password in incorrect then do the same
-//if both are correct the inject the plain version of the user document object
-//under req.user and pass control to the next route
-async function login(req, res, next) {
-  try {
-    console.log('Login attempt made...')
+  // If a username and password are defined and are of type string.
+  if (typeof email === "string" && typeof password === "string"){
 
-    const username = req.body.username.trim();
-    const password = req.body.password;
+    try {
 
-    const user = await UserModel.findById(username)
-    if (!user) {
-      console.log(`Login attempt failed -> Invalid Username @ ${Date.now()}`)
-      res.status(401).json({username: 'Invalid username'});
-      return;
+      email = email.trim();
+
+      // Try to find the user.
+      // Password path is selected explicitly as it's set to false by default and will be needed to compare passwords.
+      const existingUser = await UserModel.findOne({email},'_id name password');
+  
+      // If there is no user then respond with appropriate status code
+      if (!existingUser) {
+        res.sendStatus(404);
+        console.warn(chalk.yellow(`User ${email} authentication attempt failed - no such user `));
+      }
+
+      // If a user was found, then compare the passwords.
+      else{
+  
+      const passwordMatch = await bcrypt.compare(password, existingUser.password);
+        
+      // If the password does not match
+      if (!passwordMatch) {
+        console.error(chalk.red(`User ${email} authentication attempt failed - Invalid Password`));
+        res.sendStatus(401);
+      }
+      
+      // If the password matches
+      else{
+
+        console.log(chalk.green(`User authentication attempt succeeded ${email}`));
+
+        // Pass control to the next route after injecting a user object in req
+        req.user = {id: existingUser.id , name : existingUser.name}
+        next();
+      }
+    
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    } 
 
-    if (!passwordMatch) {
-      console.log(`Login attempt failed -> Invalid Password @ ${Date.now()}`);
-      res.status(401).json({password: 'Invalid password'});
-      return;
+    catch (err) {
+      console.error(chalk.red(err));
+      res.sendStatus(400);
     }
 
-    console.log(`Login attempt succeeded @ ${Date.now()}`);
-
-    req.user = user.toJSON();
-
-    next();
-
-  } catch (e) {
-    next(e);
   }
+
 }
 
-//req.user should be a plain object,it will be signed  and stored in cookie storage
-//and finally respond with the username of the user that was successfully logged in.
+// Grant a token to a user
 function grantToken(req, res,next) {
-  const token = jwt.sign(req.user, process.env.SECRET, {
-    expiresIn: 60 * 30
+
+  // Generate a token
+  const token = jwt.sign({id: req.user.id}, process.env.JWT_SECRET, {
+    expiresIn: '1h'
   });
+
+  // Set a cookie in the response with the token
   res.cookie("tkn", token, {
     httpOnly: true,
     secure: process.env.SECURE_COOKIES === "true" ? true : false
   });
 
-  console.log(
-    'Granted token!');
+  // Pass control to the next route
+  next();
+
+}
+
+// Verify that the token is valid
+function verifyToken(req, res, next) {
+  try {
+    req.user = jwt.verify(req.cookies["tkn"], process.env.JWT_SECRET);
+    next();
+  } catch (err) {
+    console.error(chalk.red(err));
+    res.sendStatus(401);
+  }
+}
+
+// Revoke a token
+function revokeToken(req,res,next){
+  res.clearCookie("tkn", {
+    httpOnly: true,
+    secure: process.env.SECURE_COOKIES === "true" ? true : false
+  });
+  res.end();
+}
+
+// Send back some user metadata.
+function sendUserMetaData(req,res,next){
+  res.json({
+      name:req.user.name
+  });
 }
 
 
-function sendUserInfo(req,res,next){
-    res.json({
-        name:req.user.name
-    })
-}
 
 
 
 
-module.exports = { verifyToken, login, grantToken,sendUserInfo };
+
+
+
+
+
+module.exports = { verifyToken, authenticateUser, grantToken,revokeToken,sendUserMetaData };
 
