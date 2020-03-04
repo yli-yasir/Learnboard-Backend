@@ -18,6 +18,7 @@ router.post("/register", async (req, res, next) => {
     // Check if user with email already exists
     const existingUser = await User.findOne({ email: user.email });
 
+    // If a user with that email already exists
     if (existingUser) {
       res.status(500).send("User with given email already exists!")
       console.warn(chalk.yellow('existing User ' + user.email + ' attempted to register again!'));
@@ -181,13 +182,16 @@ router.get("/", async (req, res, next) => {
 
 // Get a single user by their ID.
 router.get("/:id", async (req, res, next) => {
+
+  const id = req.params.id;
+
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(id);
     if (user) {
       res.json(user);
     }
     else {
-      res.status(400).send('not found');
+      res.sendStatus(404);
     }
   } catch (e) {
     next(e);
@@ -196,34 +200,56 @@ router.get("/:id", async (req, res, next) => {
 
 // Update a single user by their ID.
 router.patch("/:id", async (req, res, next) => {
+
+  const id = req.params.id;
+  let updatedUserData = req.body;
+
   try {
-    // try to find the document
-    const user = await User.redactedFindById(req.params.id);
+    // Try to find the document
+    const user = await User.findById(id);
+
+    // If the user was found
     if (user) {
-      Object.assign(user, req.body);
+      Object.assign(user, updatedUserData);
       await user.save();
-      res.status(201).send("updated");
-    } else {
-      res.status(400).send("user not found");
+      res.sendStatus(200);
+    } 
+
+    // If the user was not found
+    else {
+      res.sendStatus(404);
     }
-  } catch (e) {
+
+  } 
+  catch (e) {
     next(e);
   }
 });
 
 // Delete a single user by their ID.
 router.delete("/:id", async (req, res, next) => {
+
+  const id = req.params.id;
+
   try {
-    const result = await User.deleteOne({ _id: req.params.id });
-    if (result.deletedCount === 1) {
-      res.send('deleted');
+    let deletedDocument = await User.findByIdAndDelete(id);
+
+    // If a document was deleted
+    if (deletedDocument){
+      res.sendStatus(200);
     }
+     
+    // If a document was not deleted due to not being found
     else {
-      res.status(400).send('nothing deleted');
+      res.sendStatus(404);
     }
-  } catch (e) {
+    
+  } 
+
+  catch (e) {
     next(e);
   }
+
 });
 
 
