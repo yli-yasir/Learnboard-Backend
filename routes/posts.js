@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Post = require("../models/post");
+const jwt = require("jsonwebtoken");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -18,54 +19,73 @@ router.get("/", async (req, res, next) => {
 });
 
 router.get("/:id", async (req, res, next) => {
+
   try {
+
     const post = await Post.findById(req.params.id);
+
     if (post) {
       res.json(post);
+    
     }
     else {
-      res.status(400).send('not found');
+      res.sendStatus(404);
     }
+
   } catch (e) {
     next(e);
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/',verifyToken, async (req, res, next) => {
+
+  let post = req.body;
+
+  let authorId = req.user.id;
+  let authorName= req.user.name;
+
   try {
-    await new Post(req.body).save();
-    res.send("created");
+    post.author = {name: authorName,authorId}
+    await new Post(post).save();
+    res.sendStatus(201);
   }
   catch (e) {
     next(e)
   }
 }
+
 );
 
 router.patch("/:id", async (req, res, next) => {
+
+  const id = req.params.id;
+
   try {
     // Try to find the document
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(id);
     if (post) {
       Object.assign(post, req.body);
       await post.save(req.body);
-      res.status(201).send("updated");
+      res.sendStatus(201);
     } else {
-      res.status(400).send("not found");
+      res.sendStatus(404);
     }
   } catch (e) {
     next(e);
   }
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", verifyToken, async (req, res, next) => {
+
+  const id = req.params.id;
+
   try {
-    const result = await Post.deleteOne({ _id: req.params.id });
-    if (result.deletedCount === 1) {
-      res.send('deleted');
+    const deletedDocument = await Post.findByIdAndDelete(id);
+    if (deletedDocument) {
+      res.sendStatus(200);
     }
     else {
-      res.status(400).send('nothing deleted');
+      res.sendStatus(400);
     }
   } catch (e) {
     next(e);

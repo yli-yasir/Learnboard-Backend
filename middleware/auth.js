@@ -5,6 +5,7 @@ const chalk = require("chalk");
 
 // Authenticate the user
 async function authenticateUser(req, res, next) {
+
   let email = req.body.email;
   const password = req.body.password;
 
@@ -17,7 +18,7 @@ async function authenticateUser(req, res, next) {
 
       // Try to find the user.
       // Password path is selected explicitly as it's set to false by default and will be needed to compare passwords.
-      const existingUser = await UserModel.findOne({email},'_id name password');
+      const existingUser = await UserModel.findOne({email},'password');
   
       // If there is no user then respond with appropriate status code
       if (!existingUser) {
@@ -51,11 +52,16 @@ async function authenticateUser(req, res, next) {
     } 
 
     catch (err) {
-      console.error(chalk.red(err));
-      res.sendStatus(400);
+      next(err);
     }
 
   }
+
+  else{
+    res.sendStatus(400);
+  }
+
+
 
 }
 
@@ -63,7 +69,7 @@ async function authenticateUser(req, res, next) {
 function grantToken(req, res,next) {
 
   // Generate a token
-  const token = jwt.sign({id: req.user.id}, process.env.JWT_SECRET, {
+  const token = jwt.sign({id: req.user.id,name: req.user.name}, process.env.JWT_SECRET, {
     expiresIn: '1h'
   });
 
@@ -80,13 +86,24 @@ function grantToken(req, res,next) {
 
 // Verify that the token is valid
 function verifyToken(req, res, next) {
+
+  const token = req.cookies["tkn"];
+
+  if (typeof token === "string"){
+
   try {
-    req.user = jwt.verify(req.cookies["tkn"], process.env.JWT_SECRET);
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
-  } catch (err) {
-    console.error(chalk.red(err));
-    res.sendStatus(401);
+  } 
+  catch (err) {
+    next(err);
   }
+}
+
+else{
+  res.sendStatus(400);
+}
+
 }
 
 // Revoke a token

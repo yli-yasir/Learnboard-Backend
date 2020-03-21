@@ -116,7 +116,7 @@ router.post("/send-verification-email", async (req, res, next) => {
     catch (err) {
       console.log(chalk.red('Failed to send verification email to ' + email))
       console.error(chalk.red(err.message));
-      res.status(500).send("Something went wrong while sending the email!");
+      next(err);
     }
   }
 
@@ -153,9 +153,8 @@ router.post("/verify-account", async (req, res, next) => {
 
   // If decoding the token fails
   catch (err) {
-    res.sendStatus(500);
     console.error(chalk.red('Failed to verify a user account'));
-    console.error(chalk.red(err.message));
+    next(err);
   }
 
 });
@@ -227,10 +226,9 @@ router.patch("/:id", async (req, res, next) => {
 });
 
 // Delete a single user by their ID.
-router.delete("/:id", async (req, res, next) => {
-
+router.delete("/:id",verifyToken ,async (req, res, next) => {
+  
   const id = req.params.id;
-
   try {
     let deletedDocument = await User.findByIdAndDelete(id);
 
