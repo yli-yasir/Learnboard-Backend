@@ -9,7 +9,6 @@ Users are able to rate posts they have taken, and report scam posts. Each user w
 * MongoDB
 
 # Setting up:
-* Create all required MongoDB collections
 * Create a unqiue index on the email field in the `users` collection
 * Define the following enviroment variables in a `.env` file located at the root of the project:
   * `PORT` : The port the server will run on.
