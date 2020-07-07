@@ -1,22 +1,40 @@
 const nodemailer = require('nodemailer');
+const prettyLogger = require('./prettyLogger');
 
-function sendEmail(){}
-// Sign a JWT with the user's email as the payload 
-        let token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+class mailer{
 
-        let transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST,
-          secure: process.env.SECURE_SMTP === "true" ? true : false,
-          auth: {
-            user: process.env.SMTP_USERNAME,
-            pass: process.env.SMTP_PASSWORD
-          }
-        });
+  constructor(){
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      secure: true,
+      auth: {
+        user: senderEmail,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+  }
 
-        // Send the email after putting the token in the verification link
-        let info = await transporter.sendMail({
-          from: 'Learnboard <Learnboard@gmail.com>',
-          to: email,
-          subject: 'Learnboard Account Verification',
-          html: `<p>Hi ${user.name},</p><p>Please Click the following link to verify your email: <a href="${process.env.VERIFICATION_LINK}?vt=${token}">Verify my account</a></p>`
-        });
+  // recepientEmail - String
+  // content - {subject : String, body: String}
+  // HTML is supported in content.body
+  // e.g. sendEmail("test@gmail.com",{subject: 'this is a test' , body: '<p>hello</p>.'});
+  sendEmail(){
+    const senderEmail = process.env.SMTP_USERNAME;
+    try {
+      await this.transporter.sendMail({
+        from: `${process.env.APP_NAME} <${senderEmail}>`,
+        to: recepientEmail,
+        subject: content.subject,
+        html: content.body,
+});
+      prettyLogger.logInfo(`Email sent to ${recepientEmail} successfully!`);
+  }
+
+  catch(err) {
+    prettyLogger.logError(`Something went wrong while attempting to send an email to ${recepientEmail}.`);
+  }
+
+}
+}
+
+module.exports = mailer;
