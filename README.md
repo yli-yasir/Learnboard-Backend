@@ -12,7 +12,7 @@ Users are able to rate posts they have taken, and report scam posts. Each user w
 * Create a unqiue index on the email field in the `users` collection
 * Define the following enviroment variables in a `.env` file located at the root of the project:
   * `PORT` : The port the server will run on.
-  * `MONGO_CONNECTION_STRING`: The MongoDB connection string.
+  * `DB_URI`: .
   * `SECURE_COOKIES`: Ensures the browser only sends cookies over HTTPS. ( true | false )
   * `SMTP_HOST`: e.g. "smtp.gmail.com"
   * `SECURE_SMTP`: if true the connection will use TLS when connecting to server. If false (the default) then TLS is used if server supports the STARTTLS extension. In most cases set this value to true if you are connecting to port 465. For port 587 or 25 keep it false. ( true | false )

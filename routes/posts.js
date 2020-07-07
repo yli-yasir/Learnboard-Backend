@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const Post = require("../models/post");
+const Post = require("../db/models/post");
 const jwt = require("jsonwebtoken");
+const {verifyToken} = require('../middleware/auth')
 
 router.get("/", async (req, res, next) => {
   try {
