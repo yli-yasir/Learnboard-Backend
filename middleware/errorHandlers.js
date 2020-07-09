@@ -16,4 +16,6 @@ function handleValidationError(err,req,res,next){
 }
 
 
-module.exports = [handleValidationError]
+
+const dbErrorHandlers = [handleValidationError]
+module.exports = {dbErrorHandlers + }
